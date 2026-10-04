@@ -1,0 +1,102 @@
+name: Focus
+
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGNING_REQUIRED: NO
+    CODE_SIGN_IDENTITY: ""
+    PROVISIONING_PROFILE_SPECIFIER: ""
+    ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: NO
+
+targets:
+  Focus:
+    type: application
+    platform: iOS
+    sources:
+      - path: FocusApp
+        excludes:
+          - "*.entitlements"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.Focus
+        PRODUCT_NAME: Focus
+        INFOPLIST_KEY_CFBundleDisplayName: 专注
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_ENTITLEMENTS: FocusApp/FocusApp.entitlements
+    dependencies:
+      - target: DeviceActivityMonitor
+        embed: true
+      - target: ShieldConfiguration
+        embed: true
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+      - sdk: DeviceActivity.framework
+
+  DeviceActivityMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/DeviceActivityMonitor
+        excludes:
+          - "Info.plist"
+          - "*.entitlements"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.Focus.DeviceActivityMonitor
+        PRODUCT_NAME: DeviceActivityMonitor
+        INFOPLIST_FILE: Extensions/DeviceActivityMonitor/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Extensions/DeviceActivityMonitor/DeviceActivityMonitor.entitlements
+    dependencies:
+      - sdk: DeviceActivity.framework
+      - sdk: ManagedSettings.framework
+      - sdk: FamilyControls.framework
+
+  ShieldConfiguration:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/ShieldConfiguration
+        excludes:
+          - "Info.plist"
+          - "*.entitlements"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.Focus.ShieldConfiguration
+        PRODUCT_NAME: ShieldConfiguration
+        INFOPLIST_FILE: Extensions/ShieldConfiguration/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Extensions/ShieldConfiguration/ShieldConfiguration.entitlements
+    dependencies:
+      - sdk: ManagedSettings.framework
+      - sdk: ManagedSettingsUI.framework
+
+schemes:
+  Focus:
+    build:
+      targets:
+        Focus: all
+        DeviceActivityMonitor: all
+        ShieldConfiguration: all
+    archive:
+      config: Release
