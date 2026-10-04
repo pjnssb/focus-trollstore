@@ -133,9 +133,12 @@ final class FocusStore: ObservableObject {
             status: .running
         )
 
+        SharedDefaults.save(session, forKey: SharedDefaults.activeSessionKey)
+
         do {
             try startMonitoring(for: session)
         } catch {
+            SharedDefaults.remove(forKey: SharedDefaults.activeSessionKey)
             errorMessage = "无法启动设备活动监控：\(error.localizedDescription)"
             return
         }
@@ -145,7 +148,6 @@ final class FocusStore: ObservableObject {
         remaining = duration
         isRunning = true
         completedSession = nil
-        SharedDefaults.save(session, forKey: SharedDefaults.activeSessionKey)
         scheduleTimer()
     }
 
