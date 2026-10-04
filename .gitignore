@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# CocoaPods / Carthage
+Pods/
+Carthage/Build/
+
+# 环境变量与密钥
+.env
+.env.*
+*.local
+*.pem
+*.key
+*.p12
+*.mobileprovision
+
+# 日志与临时文件
+*.log
+tmp/
+*.tmp
+*.bak
+
+# IDE
+.idea/
+.vscode/
+*.xccheckout
+*.xcscmblueprint
