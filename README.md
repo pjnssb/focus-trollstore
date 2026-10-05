@@ -50,7 +50,7 @@ chmod +x scripts/build-ipa.sh
 ## 首次使用
 
 1. 打开 App，按提示授权 Screen Time 访问。
-2. 点“选择允许的 App”，在白名单里勾选专注期间允许使用的 App。
+2. 点“选择允许的 App”，在白名单里勾选专注期间允许使用的 App；请务必把「专注」和「TrollStore」也勾选进去。
 3. 选择专注时长。
 4. 点“开始专注”。
 5. 打开非白名单 App 时会出现系统盾牌；白名单 App 不受影响。
@@ -93,6 +93,8 @@ chmod +x scripts/build-ipa.sh
 - **同一设备通常只能有一个第三方 App 持有 FamilyControls 授权**：如果设备上已有其他 Screen Time 类 App，需要先解除它的授权。
 - **后台解禁是分钟级**：`DeviceActivitySchedule` 使用小时/分钟，后台解禁可能在结束分钟触发，最多延迟约 59 秒；前台计时仍精确到秒。
 - **只支持 App 白名单**：`FamilyActivityPicker` 里选中的分类和网页在首版会被忽略。
+- **后台自动解禁需要至少 15 分钟**：短于 15 分钟时 DeviceActivity 会报 `The activity's schedule is too short`，因此时长下限已改为 15 分钟。
+- **「专注」和「TrollStore」需要手动加入白名单**：Apple 的公开 API 不允许 App 按 bundle id 自动排除指定应用，所以必须在白名单选择器里手动勾选它们。
 - **只支持单次专注**：没有暂停/恢复、循环番茄钟、树苗、花园、统计、通知。
 - **TrollStore 版本限制**：TrollStore 目前支持 iOS 14.0 beta 2–16.6.1、16.7 RC、17.0；iOS 17.0.1 及以上不支持。
 - **需要真机测试**：Screen Time API 在模拟器上不能完整工作。
@@ -111,6 +113,13 @@ chmod +x scripts/build-ipa.sh
    ```
 
 3. 检查三个 target 是否都使用同一个 App Group：`group.com.example.Focus`。
+
+### 启动设备活动监控时报 application-identifier 错误
+
+- 确认主 App 和两个扩展的 entitlements 都包含：
+  - `application-identifier` = `ABCDE12345.<对应 bundle id>`
+  - `com.apple.developer.team-identifier` = `ABCDE12345`
+- 如果仍然报错，可以把三个 entitlements 文件里的 `ABCDE12345` 统一换成另一个 10 位 Team ID，再重新构建。
 
 ### 后台计时结束没有解除
 

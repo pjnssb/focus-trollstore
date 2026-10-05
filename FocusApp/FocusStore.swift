@@ -36,7 +36,7 @@ final class FocusStore: ObservableObject {
 
     init() {
         let savedDuration = UserDefaults.standard.integer(forKey: StorageKey.durationMinutes)
-        if savedDuration > 0 {
+        if savedDuration >= 15 {
             durationMinutes = savedDuration
         }
 
@@ -115,6 +115,11 @@ final class FocusStore: ObservableObject {
 
         guard canStart else {
             errorMessage = "请先授权 Screen Time 访问权限。"
+            return
+        }
+
+        guard durationMinutes >= 15 else {
+            errorMessage = "DeviceActivity 后台监控至少需要 15 分钟。请选择 15 分钟或更长。"
             return
         }
 

@@ -110,7 +110,7 @@ struct ContentView: View {
                         get: { Double(store.durationMinutes) },
                         set: { store.durationMinutes = Int($0) }
                     ),
-                    in: 5...180,
+                    in: 15...180,
                     step: 5
                 )
                 .disabled(store.isRunning)
@@ -138,6 +138,10 @@ struct ContentView: View {
             Text("专注期间，只有白名单里的 App 可以打开；其他可屏蔽的 App 会被系统盾牌拦住。")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+
+            Text("重要：请把「专注」和「TrollStore」也加入白名单，否则它们会被盾牌拦住。")
+                .font(.caption)
+                .foregroundStyle(Color.orange)
 
             if store.whitelistCount == 0 {
                 Text("未选择任何 App，将屏蔽所有可屏蔽的 App。")
