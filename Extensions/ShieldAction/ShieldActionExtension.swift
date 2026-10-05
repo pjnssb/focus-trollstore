@@ -3,7 +3,7 @@ import FamilyControls
 import ManagedSettings
 import Foundation
 
-final class ShieldActionExtension: ShieldActionDelegate {
+class ShieldActionExtension: ShieldActionDelegate {
     private let storeName = "FocusStore"
 
     override func handle(
@@ -23,7 +23,7 @@ final class ShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         if action == .primaryButtonPressed,
-           let token = SharedDefaults.load(ApplicationToken.self, forKey: SharedDefaults.lastShieldedApplicationTokenKey) {
+           let token = ShieldTokenStore.load() {
             handleTemporaryUnlock(for: token)
         }
         completionHandler(.close)

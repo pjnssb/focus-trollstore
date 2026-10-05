@@ -2,7 +2,7 @@ import ManagedSettings
 import ManagedSettingsUI
 import UIKit
 
-final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
+class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         remember(application)
         return makeApplicationConfiguration()
@@ -23,7 +23,7 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     private func remember(_ application: Application) {
         guard let token = application.token else { return }
-        SharedDefaults.save(token, forKey: SharedDefaults.lastShieldedApplicationTokenKey)
+        ShieldTokenStore.save(token)
     }
 
     private func makeApplicationConfiguration() -> ShieldConfiguration {
