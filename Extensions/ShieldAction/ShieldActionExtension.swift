@@ -4,8 +4,6 @@ import ManagedSettings
 import Foundation
 
 class ShieldActionExtension: ShieldActionDelegate {
-    private let storeName = "FocusStore"
-
     override func handle(
         action: ShieldAction,
         for application: ApplicationToken,
@@ -50,16 +48,18 @@ class ShieldActionExtension: ShieldActionDelegate {
         let temporaryUnlock = TemporaryUnlock(applicationToken: application, startedAt: Date())
         SharedDefaults.save(temporaryUnlock, forKey: SharedDefaults.temporaryUnlockKey)
 
-        let store = ManagedSettingsStore(named: .init(storeName))
-        store.shield.applicationCategories = .all(
-            except: SharedDefaults.allowedApplicationTokens(for: session)
-        )
-
         let calendar = Calendar.current
-        let startComponents = calendar.dateComponents([.hour, .minute], from: session.startDate)
-        let monitoringEnd = calendar.date(byAdding: .hour, value: 24, to: session.startDate)
-            ?? session.startDate.addingTimeInterval(24 * 60 * 60)
-        let endComponents = calendar.dateComponents([.hour, .minute], from: monitoringEnd)
+        let now = Date()
+        let startComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: calendar.startOfDay(for: now)
+        )
+        let monitoringEnd = calendar.date(byAdding: .hour, value: 24, to: now)
+            ?? now.addingTimeInterval(24 * 60 * 60)
+        let endComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: monitoringEnd
+        )
 
         let activityCenter = DeviceActivityCenter()
         let schedule = DeviceActivitySchedule(
@@ -80,9 +80,6 @@ class ShieldActionExtension: ShieldActionDelegate {
             )
         } catch {
             SharedDefaults.remove(forKey: SharedDefaults.temporaryUnlockKey)
-            store.shield.applicationCategories = .all(
-                except: session.whitelist.applicationTokens
-            )
         }
     }
 }
