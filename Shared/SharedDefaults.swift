@@ -1,10 +1,12 @@
 import Foundation
+import ManagedSettings
 
 enum SharedDefaults {
     static let appGroupID = "group.com.example.Focus"
     static let activeSessionKey = "focus.activeSession"
     static let lastSessionKey = "focus.lastSession"
     static let whitelistKey = "focus.whitelist"
+    static let temporaryUnlockKey = "focus.temporaryUnlock"
 
     static var store: UserDefaults? {
         UserDefaults(suiteName: appGroupID)
@@ -26,5 +28,15 @@ enum SharedDefaults {
 
     static func isAvailable() -> Bool {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) != nil
+    }
+
+    static func allowedApplicationTokens(for session: FocusSession) -> Set<ApplicationToken> {
+        var tokens = session.whitelist.applicationTokens
+
+        if let temporaryUnlock = load(TemporaryUnlock.self, forKey: temporaryUnlockKey) {
+            tokens.insert(temporaryUnlock.applicationToken)
+        }
+
+        return tokens
     }
 }

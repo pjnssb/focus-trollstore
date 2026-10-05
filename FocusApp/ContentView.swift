@@ -110,7 +110,7 @@ struct ContentView: View {
                         get: { Double(store.durationMinutes) },
                         set: { store.durationMinutes = Int($0) }
                     ),
-                    in: 15...180,
+                    in: 1...180,
                     step: 5
                 )
                 .disabled(store.isRunning)

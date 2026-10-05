@@ -53,8 +53,9 @@ chmod +x scripts/build-ipa.sh
 2. 点“选择允许的 App”，在白名单里勾选专注期间允许使用的 App；请务必把「专注」和「TrollStore」也勾选进去。
 3. 选择专注时长。
 4. 点“开始专注”。
-5. 打开非白名单 App 时会出现系统盾牌；白名单 App 不受影响。
-6. 计时结束自动解除；也可以回到 App 点“放弃专注”立即解除。
+5. 打开非白名单 App 时会出现盾牌；白名单 App 不受影响。
+6. 盾牌上可以点“临时使用 5 分钟”（累计使用满 5 分钟后重新上盾），或点“结束专注”立即解除。
+7. 计时结束自动解除；也可以回到 App 点“放弃专注”立即解除。
 
 ## 工作原理
 
@@ -81,7 +82,8 @@ chmod +x scripts/build-ipa.sh
 ├── Shared/                           # 主 App 与扩展共享的模型和存储
 ├── Extensions/
 │   ├── DeviceActivityMonitor/        # 后台计时结束解禁
-│   └── ShieldConfiguration/          # 自定义盾牌文案
+│   ├── ShieldConfiguration/          # 自定义盾牌文案
+│   └── ShieldAction/                 # 临时使用 / 结束专注按钮
 ├── scripts/build-ipa.sh              # 构建 + ldid 签名 + 打包 IPA
 ├── .github/workflows/                # GitHub Actions 构建流程
 └── project.yml                       # XcodeGen 工程定义
@@ -93,7 +95,8 @@ chmod +x scripts/build-ipa.sh
 - **同一设备通常只能有一个第三方 App 持有 FamilyControls 授权**：如果设备上已有其他 Screen Time 类 App，需要先解除它的授权。
 - **后台解禁是分钟级**：`DeviceActivitySchedule` 使用小时/分钟，后台解禁可能在结束分钟触发，最多延迟约 59 秒；前台计时仍精确到秒。
 - **只支持 App 白名单**：`FamilyActivityPicker` 里选中的分类和网页在首版会被忽略。
-- **后台自动解禁需要至少 15 分钟**：短于 15 分钟时 DeviceActivity 会报 `The activity's schedule is too short`，因此时长下限已改为 15 分钟。
+- **后台安全网是 24 小时**：App 会向系统申请一个 24 小时的 DeviceActivity 窗口作为安全网，实际时长由 App 内计时器控制；如果 App 被强杀，屏蔽会保留到你重新打开 App 或 24 小时窗口结束。
+- **临时使用 5 分钟**：盾牌上的“临时使用 5 分钟”按钮按使用时长计算；该 App 累计使用满 5 分钟后会重新上盾。
 - **「专注」和「TrollStore」需要手动加入白名单**：Apple 的公开 API 不允许 App 按 bundle id 自动排除指定应用，所以必须在白名单选择器里手动勾选它们。
 - **只支持单次专注**：没有暂停/恢复、循环番茄钟、树苗、花园、统计、通知。
 - **TrollStore 版本限制**：TrollStore 目前支持 iOS 14.0 beta 2–16.6.1、16.7 RC、17.0；iOS 17.0.1 及以上不支持。

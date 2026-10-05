@@ -36,7 +36,7 @@ final class FocusStore: ObservableObject {
 
     init() {
         let savedDuration = UserDefaults.standard.integer(forKey: StorageKey.durationMinutes)
-        if savedDuration >= 15 {
+        if savedDuration >= 1 {
             durationMinutes = savedDuration
         }
 
@@ -118,8 +118,8 @@ final class FocusStore: ObservableObject {
             return
         }
 
-        guard durationMinutes >= 15 else {
-            errorMessage = "DeviceActivity 后台监控至少需要 15 分钟。请选择 15 分钟或更长。"
+        guard durationMinutes >= 1 else {
+            errorMessage = "专注时长至少需要 1 分钟。"
             return
         }
 
@@ -138,6 +138,7 @@ final class FocusStore: ObservableObject {
             status: .running
         )
 
+        SharedDefaults.remove(forKey: SharedDefaults.temporaryUnlockKey)
         SharedDefaults.save(session, forKey: SharedDefaults.activeSessionKey)
 
         do {
@@ -250,7 +251,9 @@ final class FocusStore: ObservableObject {
     private func startMonitoring(for session: FocusSession) throws {
         let calendar = Calendar.current
         let startComponents = calendar.dateComponents([.hour, .minute], from: session.startDate)
-        let endComponents = calendar.dateComponents([.hour, .minute], from: session.endDate)
+        let monitoringEnd = calendar.date(byAdding: .hour, value: 24, to: session.startDate)
+            ?? session.startDate.addingTimeInterval(24 * 60 * 60)
+        let endComponents = calendar.dateComponents([.hour, .minute], from: monitoringEnd)
 
         let schedule = DeviceActivitySchedule(
             intervalStart: startComponents,
@@ -277,7 +280,9 @@ final class FocusStore: ObservableObject {
 
     private func applyShield(for session: FocusSession) {
         managedSettingsStore.shield.applications = nil
-        managedSettingsStore.shield.applicationCategories = .all(except: session.whitelist.applicationTokens)
+        managedSettingsStore.shield.applicationCategories = .all(
+            except: SharedDefaults.allowedApplicationTokens(for: session)
+        )
         managedSettingsStore.shield.webDomains = nil
         managedSettingsStore.shield.webDomainCategories = nil
     }
@@ -299,6 +304,7 @@ final class FocusStore: ObservableObject {
         remaining = 0
         SharedDefaults.save(session, forKey: SharedDefaults.lastSessionKey)
         SharedDefaults.remove(forKey: SharedDefaults.activeSessionKey)
+        SharedDefaults.remove(forKey: SharedDefaults.temporaryUnlockKey)
         completedSession = session
     }
 

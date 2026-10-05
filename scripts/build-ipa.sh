@@ -73,6 +73,9 @@ sign_binary "$SIGN_APP/PlugIns/DeviceActivityMonitor.appex/DeviceActivityMonitor
 sign_binary "$SIGN_APP/PlugIns/ShieldConfiguration.appex/ShieldConfiguration" \
   "$ROOT_DIR/Extensions/ShieldConfiguration/ShieldConfiguration.entitlements"
 
+sign_binary "$SIGN_APP/PlugIns/ShieldAction.appex/ShieldAction" \
+  "$ROOT_DIR/Extensions/ShieldAction/ShieldAction.entitlements"
+
 echo "==> Signing main app"
 sign_binary "$SIGN_APP/$APP_NAME" "$ROOT_DIR/FocusApp/FocusApp.entitlements"
 
@@ -80,6 +83,7 @@ echo "==> Verifying entitlements"
 codesign -d --entitlements :- "$SIGN_APP/$APP_NAME" 2>&1 || true
 codesign -d --entitlements :- "$SIGN_APP/PlugIns/DeviceActivityMonitor.appex/DeviceActivityMonitor" 2>&1 || true
 codesign -d --entitlements :- "$SIGN_APP/PlugIns/ShieldConfiguration.appex/ShieldConfiguration" 2>&1 || true
+codesign -d --entitlements :- "$SIGN_APP/PlugIns/ShieldAction.appex/ShieldAction" 2>&1 || true
 
 echo "==> Packaging IPA"
 (
