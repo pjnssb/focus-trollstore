@@ -11,19 +11,10 @@ final class ShieldActionExtension: ShieldActionDelegate {
         for application: ApplicationToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
-        switch action {
-        case .primaryButtonPressed:
+        if action == .primaryButtonPressed {
             handleTemporaryUnlock(for: application)
-            completionHandler(.close)
-        case .secondaryButtonPressed,
-             .firstSecondarySubmenuItemPressed,
-             .secondSecondarySubmenuItemPressed,
-             .thirdSecondarySubmenuItemPressed:
-            endSession()
-            completionHandler(.close)
-        @unknown default:
-            completionHandler(.close)
         }
+        completionHandler(.close)
     }
 
     override func handle(
@@ -31,7 +22,10 @@ final class ShieldActionExtension: ShieldActionDelegate {
         for category: ActivityCategoryToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
-        endSession()
+        if action == .primaryButtonPressed,
+           let token = SharedDefaults.load(ApplicationToken.self, forKey: SharedDefaults.lastShieldedApplicationTokenKey) {
+            handleTemporaryUnlock(for: token)
+        }
         completionHandler(.close)
     }
 
@@ -40,7 +34,6 @@ final class ShieldActionExtension: ShieldActionDelegate {
         for webDomain: WebDomainToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
-        endSession()
         completionHandler(.close)
     }
 
@@ -91,24 +84,5 @@ final class ShieldActionExtension: ShieldActionDelegate {
                 except: session.whitelist.applicationTokens
             )
         }
-    }
-
-    private func endSession() {
-        let store = ManagedSettingsStore(named: .init(storeName))
-        store.clearAllSettings()
-        store.shield.applications = nil
-        store.shield.applicationCategories = nil
-        store.shield.webDomains = nil
-        store.shield.webDomainCategories = nil
-
-        DeviceActivityCenter().stopMonitoring([.focusSession])
-
-        if var session = SharedDefaults.load(FocusSession.self, forKey: SharedDefaults.activeSessionKey) {
-            session.status = .abandoned
-            SharedDefaults.save(session, forKey: SharedDefaults.lastSessionKey)
-        }
-
-        SharedDefaults.remove(forKey: SharedDefaults.activeSessionKey)
-        SharedDefaults.remove(forKey: SharedDefaults.temporaryUnlockKey)
     }
 }
