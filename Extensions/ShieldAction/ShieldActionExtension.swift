@@ -15,7 +15,10 @@ final class ShieldActionExtension: ShieldActionDelegate {
         case .primaryButtonPressed:
             handleTemporaryUnlock(for: application)
             completionHandler(.close)
-        case .secondaryButtonPressed:
+        case .secondaryButtonPressed,
+             .firstSecondarySubmenuItemPressed,
+             .secondSecondarySubmenuItemPressed,
+             .thirdSecondarySubmenuItemPressed:
             endSession()
             completionHandler(.close)
         @unknown default:
